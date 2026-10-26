@@ -1,4 +1,8 @@
 {
+  "promptSuggestionEnabled": false,
+  "env": {
+    "CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION": "false"
+  },
   "permissions": {
     "allow": [
       "Bash(python3 .claude/skills/lernsession/scripts/lernstand.py:*)",

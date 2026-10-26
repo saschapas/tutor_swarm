@@ -71,7 +71,7 @@ Kurse/<kurs>/
 
 **Aufbereiten ohne Zeitdruck:** Beim Material-Update arbeiten die Agents im Hintergrund. Sie lesen, prüfen, recherchieren und schreiben fertige Session-Pakete.
 
-**Lernen in Echtzeit:** Die Lernsession läuft im Hauptgespräch, denn nur dort kannst du antworten. Sie greift nur auf die vorbereiteten Pakete zu. So kommen die Antworten schnell und der Lernfluss stockt nicht.
+**Lernen in Echtzeit:** Die Lernsession läuft im Hauptgespräch, denn nur dort kannst du antworten. Sie greift nur auf die vorbereiteten Pakete zu. So kommen die Antworten schnell und der Lernfluss stockt nicht. Die Lern-Skills laufen mit `effort: low` und antworten ohne Tool-Aufrufe zwischen deinen Antworten. Die automatischen Antwortvorschläge von Claude Code sind in `.claude/settings.json` abgeschaltet, damit du selbst formulierst – das ist der Kern der Abrufübung.
 
 ```
  Material ──▶ material-sichter ──▶ luecken-evaluator ──▶ recherche (×n, parallel)
@@ -162,7 +162,7 @@ Then, inside Claude Code:
 
 **Preparation with no time pressure:** during a material update, the agents work in the background. They read, check, research, and write ready-made session packages.
 
-**Learning in real time:** the study session runs in the main conversation, because that's the only place where you can reply. It only uses the prepared packages, so responses are fast and your flow isn't interrupted.
+**Learning in real time:** the study session runs in the main conversation, because that's the only place where you can reply. It only uses the prepared packages, so responses are fast and your flow isn't interrupted. The study skills run at `effort: low` and make no tool calls between your answers. Claude Code's automatic prompt suggestions are switched off in `.claude/settings.json`, so you phrase every answer yourself – that's the whole point of retrieval practice.
 
 ## 🐝 Is it really a "swarm"?
 
