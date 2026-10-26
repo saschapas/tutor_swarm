@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 .claude/skills/lernsession/scripts/lernstand.py:*)",
+      "Bash(pdftotext:*)",
+      "Bash(unzip -p:*)",
+      "WebSearch",
+      "WebFetch"
+    ]
+  }
+}

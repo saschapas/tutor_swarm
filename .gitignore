@@ -1,0 +1,8 @@
+# Persönliche Kursinhalte nie veröffentlichen
+Kurse/*
+!Kurse/.gitkeep
+.claude/agents/fachexperte-*.md
+.claude/skills/kurs-*/
+!.claude/skills/kurs-anlegen/
+.claude/settings.local.json
+__pycache__/
