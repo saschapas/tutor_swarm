@@ -1,4 +1,4 @@
-# 🐝 Lern-Agent-Swarm
+# 🐝 tutor_swarm
 
 **Ein Team aus KI-Agenten für [Claude Code](https://claude.com/claude-code), das aus deinem Kursmaterial einen persönlichen Tutor macht.**
 
@@ -20,8 +20,8 @@ Du legst Folien, Skripte und Übungsblätter in einen Ordner. Die Agents sortier
 ## 🚀 Schnellstart
 
 ```bash
-git clone https://github.com/<user>/<repo>.git
-cd <repo>
+git clone https://github.com/saschapas/tutor_swarm.git
+cd tutor_swarm
 mkdir -p Kurse/mein_kurs && cp ~/Downloads/folien*.pdf Kurse/mein_kurs/
 claude
 ```
@@ -105,7 +105,7 @@ Deine Kurse, Notizen und dein Lernstand liegen nur lokal in `Kurse/`. Die `.giti
 ---
 ---
 
-# 🐝 Learning Agent Swarm (English)
+# 🐝 tutor_swarm (English)
 
 **A team of AI agents for [Claude Code](https://claude.com/claude-code) that turns your course material into a personal tutor.**
 
@@ -125,8 +125,8 @@ Drop slides, lecture notes and problem sheets into a folder. The agents sort the
 ## 🚀 Quick start
 
 ```bash
-git clone https://github.com/<user>/<repo>.git
-cd <repo>
+git clone https://github.com/saschapas/tutor_swarm.git
+cd tutor_swarm
 mkdir -p Kurse/my_course && cp ~/Downloads/slides*.pdf Kurse/my_course/
 claude
 ```
