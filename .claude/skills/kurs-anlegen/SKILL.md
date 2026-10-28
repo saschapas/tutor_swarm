@@ -41,6 +41,8 @@ Erst **nach** der Sichtung, damit sie das tatsächliche Fachgebiet kennen. Besti
 - `.claude/skills/kurs-<kürzel>/SKILL.md` aus `vorlagen/kurs-skill.md`
 - `.claude/agents/fachexperte-<kürzel>.md` aus `vorlagen/fachexperte.md`
 
+Danach den Agent global verlinken, damit er auch außerhalb des Repos mit seinem Modell läuft: `ln -s "$PWD/.claude/agents/fachexperte-<kürzel>.md" ~/.claude/agents/`.
+
 Fülle alle `{{…}}`-Felder konkret und fachlich gehaltvoll aus – kein generischer Text. Diese Dateien sind lebendig: Sie werden bei jedem Material-Update ergänzt, wenn neue Themen dazukommen.
 
 ## 5. Abschluss

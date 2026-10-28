@@ -1,8 +1,19 @@
-# Persönliche Kursinhalte nie veröffentlichen
+# Persönliche Kursinhalte nie veröffentlichen – ins Repo gehören nur Struktur und Arbeitsweise
 Kurse/*
 !Kurse/.gitkeep
+
+# Kursspezifische Agents/Skills (enthalten Kursnamen, Dozenten, Material-Details)
 .claude/agents/fachexperte-*.md
 .claude/skills/kurs-*/
 !.claude/skills/kurs-anlegen/
 .claude/settings.local.json
+
+# _system: nur die allgemeine Lernwissenschaft ist öffentlich; Profil, Verfügbarkeit,
+# Semesterpläne, lokale Plan-Werte, Podcast-Cache und venv bleiben lokal
+_system/*
+!_system/lernwissenschaft.md
+
+# Generierte Dateien
 __pycache__/
+*.pyc
+*.mp3

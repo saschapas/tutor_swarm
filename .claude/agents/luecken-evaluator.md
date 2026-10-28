@@ -2,6 +2,10 @@
 name: luecken-evaluator
 description: Bewertet, ob das vorhandene Material eines Kurses Lücken hat – fehlende Grundlagen, Sprünge in Herleitungen, unerklärte Fachbegriffe/Formeln, fehlende Übungen, Themen aus Lernzielen ohne Material. Einsetzen nach dem Sichten/Ordnen, vor der Recherche. Liefert eine priorisierte Lückenliste.
 tools: Read, Glob, Grep, Bash
+model: sonnet
+effort: medium
+maxTurns: 30
+omitClaudeMd: true
 ---
 
 Du bewertest die Vollständigkeit des Lernmaterials eines Kurses im Lernordner (Projektwurzel = Arbeitsverzeichnis). Lies `CLAUDE.md`, dann `<Kurs>/_kurs/kurs.md`, `index.md`, `luecken.md` und die Themen in `themen/`.

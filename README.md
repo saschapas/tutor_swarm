@@ -16,6 +16,8 @@ Du legst Folien, Skripte und Übungsblätter in einen Ordner. Die Agents sortier
 - **Lernen nach der Feynman-Methode:** Nach jedem Chunk erklärst du das Konzept selbst. Der Tutor sagt dir genau, was fehlt.
 - **Verteilte Wiederholung:** Gelerntes wird zu Karten, die in wachsenden Abständen wiederkommen. Die Abstände richten sich nach dem Klausurtermin, die lernwissenschaftliche Grundlage steht in `_system/lernwissenschaft.md`.
 - **Pro Kurs ein Fachexperte:** Beim Anlegen eines Kurses entstehen ein eigener Skill und ein eigener Agent, die das jeweilige Fach sehr gut kennen (Notation, typische Hürden, Klausuraufgaben).
+- **Planung nach Datum:** `plan.py` verteilt allen offenen Stoff aller Kurse bei jedem Start neu auf die Wochen bis zur Klausur und schlägt für heute konkrete Wiederholungen und Chunks vor. Wer unregelmäßig lernt, muss nichts „nachholen“.
+- **Podcast für unterwegs:** Aus dem Lernstoff entstehen MP3-Folgen mit zwei Stimmen: eine Folge mit neuem Stoff zum Vorhören, eine als Abruf-Quiz mit Denkpausen.
 
 ## 🚀 Schnellstart
 
@@ -34,8 +36,13 @@ Dann in Claude Code:
 | `/material-update mein_kurs` | Neues Material einpflegen: sichten → ordnen → Lücken → Recherche → Lerneinheiten und Karten |
 | `/lernsession mein_kurs` | Interaktiv lernen: erst fällige Wiederholungen, dann neuer Stoff, dann Übungsaufgaben |
 | `/klausurphase mein_kurs` | Intensive Vorbereitung über den gesamten Stoff |
+| `/podcast-folge mein_kurs` | Podcast-Folgen (MP3) zum Hören: neuer Stoff und Abruf-Quiz |
 
-**Voraussetzungen:** Claude Code und Python 3 (für das Wiederholungs-Skript). Optional: `pdftotext` (poppler-utils) zum Lesen von PDFs.
+**Voraussetzungen:** Claude Code und Python 3 (für Wiederholungs- und Planungs-Skript). Optional: `pdftotext` (poppler-utils) zum Lesen von PDFs; für Podcasts ein venv mit `edge-tts` und `lameenc` (braucht Internet):
+
+```bash
+python3 -m venv _system/venv-podcast && _system/venv-podcast/bin/pip install edge-tts lameenc
+```
 
 ## 🧩 Aufbau
 
@@ -51,9 +58,18 @@ _system/lernwissenschaft.md    Wiederholungsabstände und ihre Studienlage
   skills/
     kurs-anlegen/              Einrichtung + Vorlagen für Kurs-Skill und Fachexperten-Agent
     material-update/           die Aufbereitungs-Pipeline
-    lernsession/               die Live-Lernsession + scripts/lernstand.py (Karten)
+    lernsession/               die Live-Lernsession + scripts/ (lernstand.py: Karten, plan.py: Wochen- und Tagesplan)
     klausurphase/              Klausurvorbereitung
+    podcast-folge/             Podcast-Skripte schreiben + scripts/podcast.py (Vertonung)
 Kurse/                         deine Kurse – lokal, per .gitignore nie im Repo
+```
+
+Persönliches liegt lokal in `_system/` (per `.gitignore` nie im Repo), lege es nach dem Klonen selbst an:
+
+```
+_system/profil.md         dein Vorwissen und Hintergrund, ggf. Arbeitsweg (Länge der Podcast-Folgen)
+_system/verfuegbarkeit.md wann du wie lange lernen kannst
+_system/plan-lokal.json   überschreibt Standards in plan.py, z. B. {"SEMESTER_START": "2026-10-12", "VORLESUNGSENDE": "2027-02-05", "MIN_MO_DO": 120, "PENDEL_TAGE": 5}
 ```
 
 Jeder Kurs bekommt diese Struktur:
@@ -78,8 +94,9 @@ Kurse/<kurs>/
                                                               │
                                                               ▼
  Du ◀──▶ /lernsession ◀── themen/ + lernstand.json ◀── fachexperte-<kurs>
-                 ▲
-             lernplaner
+  ▲              ▲
+  │          lernplaner + plan.py
+  └── /podcast-folge (MP3 für unterwegs)
 ```
 
 ## 🐝 Ist das wirklich ein „Swarm“?
@@ -94,13 +111,14 @@ Im LLM-Umfeld wird „Swarm“ allerdings oft locker für „mehrere zusammenarb
 
 ## 🔒 Privatsphäre
 
-Deine Kurse, Notizen und dein Lernstand liegen nur lokal in `Kurse/`. Die `.gitignore` schließt sie aus, ebenso die erzeugten kursspezifischen Skills (`kurs-*`) und Agents (`fachexperte-*`), denn darin stehen Kursnamen und Dozierende.
+Deine Kurse, Notizen und dein Lernstand liegen nur lokal in `Kurse/`. Die `.gitignore` schließt sie aus, ebenso die erzeugten kursspezifischen Skills (`kurs-*`) und Agents (`fachexperte-*`), denn darin stehen Kursnamen und Dozierende. Von `_system/` ist nur `lernwissenschaft.md` im Repo; Profil, Verfügbarkeit, persönliche Plan-Werte, Semesterpläne, Podcast-Cache und venv bleiben lokal. Im Repo stehen also nur Struktur und Arbeitsweise. Persönliches gehört in diese lokalen Dateien, nicht in Skills, Agents oder `CLAUDE.md`.
 
 ## 🛠️ Anpassen
 
 - **Sprache:** Die Prompts sind auf Deutsch. Englisches Material funktioniert, erklärt wird auf Deutsch mit den englischen Fachbegriffen. Für eine andere Sprache passt du `CLAUDE.md` an.
 - **Erklärstil und Methode:** stehen zentral in `CLAUDE.md`. Kursspezifische Abweichungen kommen in `Kurse/<kurs>/_kurs/kurs.md` unter „Methoden“.
 - **Wiederholungsabstände:** Konstanten oben in `lernstand.py`. Bitte zusammen mit `_system/lernwissenschaft.md` ändern.
+- **Semester, Lernzeiten, Pendeltage:** in `_system/plan-lokal.json` (siehe Aufbau); Minuten pro Chunk und Puffer vor der Klausur oben in `plan.py`.
 
 ---
 ---
@@ -121,6 +139,8 @@ Drop slides, lecture notes and problem sheets into a folder. The agents sort the
 - **Feynman technique:** after each chunk you explain the concept back in your own words. The tutor points out exactly what's missing.
 - **Spaced repetition:** what you've learned becomes cards that come back at growing intervals, tuned to your exam date. The research behind the intervals is summarized in `_system/lernwissenschaft.md`.
 - **A subject expert per course:** setting up a course generates a dedicated skill and agent that know the field well, including its notation, typical pitfalls and exam task types.
+- **Date-based planning:** on every start, `plan.py` spreads all open material across the weeks until the exam and suggests concrete reviews and chunks for today. If you study irregularly, there's nothing to "catch up" on.
+- **Podcast for the road:** your material becomes two-voice MP3 episodes: one previewing new material, one as a retrieval quiz with thinking pauses.
 
 ## 🚀 Quick start
 
@@ -139,8 +159,13 @@ Then, inside Claude Code:
 | `/material-update my_course` | Process new material: review → sort → gaps → research → learning units and cards |
 | `/lernsession my_course` | Interactive study session: due reviews first, then new material, then exercises |
 | `/klausurphase my_course` | Intensive exam preparation across all material |
+| `/podcast-folge my_course` | Podcast episodes (MP3): new material and a retrieval quiz |
 
-**Requirements:** Claude Code and Python 3 (for the repetition script). Optional: `pdftotext` (poppler-utils) for reading PDFs.
+**Requirements:** Claude Code and Python 3 (for the repetition and planning scripts). Optional: `pdftotext` (poppler-utils) for reading PDFs; for podcasts a venv with `edge-tts` and `lameenc` (needs internet):
+
+```bash
+python3 -m venv _system/venv-podcast && _system/venv-podcast/bin/pip install edge-tts lameenc
+```
 
 ## 🧩 Structure
 
@@ -154,9 +179,13 @@ Then, inside Claude Code:
 | `.claude/agents/lernplaner.md` | *Study planner*: schedules new material and reviews up to the exam |
 | `.claude/skills/kurs-anlegen/` | Course setup + templates for the course skill and expert agent |
 | `.claude/skills/material-update/` | The processing pipeline |
-| `.claude/skills/lernsession/` | The live study session + `scripts/lernstand.py` (cards) |
+| `.claude/skills/lernsession/` | The live study session + `scripts/` (`lernstand.py`: cards, `plan.py`: weekly and daily plan) |
 | `.claude/skills/klausurphase/` | Exam preparation |
+| `.claude/skills/podcast-folge/` | Writes podcast scripts + `scripts/podcast.py` (text-to-speech) |
 | `Kurse/` | Your courses. Local only, never committed (see `.gitignore`) |
+| `_system/profil.md` | *Local:* your background and prior knowledge, optionally your commute (episode length) |
+| `_system/verfuegbarkeit.md` | *Local:* when and how long you can study |
+| `_system/plan-lokal.json` | *Local:* overrides defaults in `plan.py`, e.g. `{"SEMESTER_START": "2026-10-12", "PENDEL_TAGE": 5}` |
 
 ## ⚙️ How it works
 
@@ -176,9 +205,10 @@ That said, in the LLM world "swarm" is often used loosely for "several cooperati
 
 ## 🔒 Privacy
 
-Your courses, notes and learning progress stay local in `Kurse/`. The `.gitignore` excludes them, as well as the generated course-specific skills (`kurs-*`) and agents (`fachexperte-*`), because those contain course and instructor names.
+Your courses, notes and learning progress stay local in `Kurse/`. The `.gitignore` excludes them, as well as the generated course-specific skills (`kurs-*`) and agents (`fachexperte-*`), because those contain course and instructor names. Of `_system/`, only `lernwissenschaft.md` is committed; your profile, availability, personal plan values, semester plans, podcast cache and venv stay local. The repo therefore contains only structure and workflow. Personal details belong in those local files, not in skills, agents or `CLAUDE.md`.
 
 ## 🛠️ Customizing
 
 - **Explanation style and method** are defined centrally in `CLAUDE.md`. Course-specific overrides go in `Kurse/<course>/_kurs/kurs.md` under "Methoden".
 - **Review intervals** are the constants at the top of `lernstand.py`. Change them together with `_system/lernwissenschaft.md`.
+- **Semester dates, study times, commute days** go in `_system/plan-lokal.json` (see Structure); minutes per chunk and the pre-exam buffer are at the top of `plan.py`.

@@ -2,6 +2,10 @@
 name: lernplaner
 description: Plant Lernsessions und Wiederholungen über alle Kurse – wertet lernstand.json aus, verteilt neuen Stoff und Wiederholungen auf die Zeit bis zum nächsten Materialeingang bzw. zur Klausur, und hält die Wiederholungsparameter wissenschaftlich aktuell. Einsetzen für Wochen-/Semesterpläne, Überblick über alle Kurse, oder wenn die Abstands-Parameter überprüft werden sollen.
 tools: Read, Write, Edit, Glob, Grep, Bash, WebSearch, WebFetch
+model: sonnet
+effort: low
+maxTurns: 25
+omitClaudeMd: true
 ---
 
 Du planst das Lernen im Lernordner (Projektwurzel = Arbeitsverzeichnis). Lies `CLAUDE.md` und `_system/lernwissenschaft.md`.
@@ -12,7 +16,9 @@ Du planst das Lernen im Lernordner (Projektwurzel = Arbeitsverzeichnis). Lies `C
 
 ## Aufgaben
 
-**Session-Plan** (Eingabe: Kurs, verfügbare Lernzeit heute, Tage bis zum nächsten neuen Stoff):
+Grundlage jeder Planung ist `python3 .claude/skills/lernsession/scripts/plan.py` (verteilt offenen Stoff ab heute auf die Wochen bis Klausur − 14 Tage, siehe `CLAUDE.md`). Rechne nicht von Hand nach, sondern interpretiere die Ausgabe und ergänze, was das Skript nicht weiß (Abhängigkeiten zwischen Themen, schwache Karten, Altklausur-Schwerpunkte, realistische Wochenstunden).
+
+**Session-Plan** (Eingabe: Kurs, verfügbare Lernzeit heute):
 - Zuerst alle heute fälligen Karten (Wiederholung hat Vorrang vor neuem Stoff – verpasste Wiederholungen kosten am meisten).
 - Dann neue Chunks in Themenreihenfolge (Grundlagen zuerst), nur so viele, dass bis zum nächsten neuen Stoff alles Neue mindestens einmal (nach ≥1 Tag) wiederholt werden kann.
 - Wenn wenig Zeit bis zum nächsten Stoff bleibt und noch Ungelerntes offen ist: das sagen und priorisieren (was ist Voraussetzung für das Kommende?).

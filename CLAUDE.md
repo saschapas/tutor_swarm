@@ -17,6 +17,8 @@ Kurse/<Kurs>/
     quellen.md       Alle externen Quellen mit Bewertung
     lernstand.json   Wiederholungskarten (nur über das Skript ändern, siehe unten)
     sessions/        Ein Protokoll pro Lernsession (JJJJ-MM-TT.md)
+    formelsammlungen/ Eine HTML-Formelsammlung pro Lernsession (JJJJ-MM-TT.html), dauerhaft aufbewahrt
+    folientext/      Abgelesener Text von Bildfolien (<materialdatei>.md, je Seite „## S. N“) – einmal ablesen, danach nur noch hier lesen
   material/          Originalmaterial, nach Art sortiert (vorlesung/, uebung/, literatur/, sonstiges/)
   themen/            Aufbereitete Themen-Notizen, in Chunks gegliedert (NN-thema.md)
   ergaenzungen/      Recherchierte Ergänzungen zu Lücken, jeweils mit Quellenangabe
@@ -48,7 +50,7 @@ Jedes neue Konzept wird in **drei Stufen** erklärt, in dieser Reihenfolge:
 3. **Alltagsbeispiel:** wenn möglich eine Analogie aus dem Alltag. Wo die Analogie hinkt, wird das gesagt.
 
 Grundsätze:
-- **Für Dummies, von unten herauf.** Keine Vorkenntnisse voraussetzen, die nicht vorher im Kurs behandelt oder geprüft wurden. Erst das Fundament, dann das, was darauf aufbaut.
+- **Von unten herauf, aber auf dem Niveau des Users.** Vorwissen und Hintergrund des Users stehen in `_system/profil.md` (lokal, nicht im Repo). Bekannte, aber eingerostete Grundlagen kompakt auffrischen (Spickzettel: Regel + Beispiel + Zweck, dann eine einfache Frage), nicht kleinschrittig durchkauen und nicht ohne Auffrischen abprüfen. Neuer Kursstoff wird vom Fundament her aufgebaut, ohne kleinschrittiges Durchkauen von Trivialem (kein Abfragen einzelner Regeln, die der User laut Profil kennt).
 - **Jeder Fachbegriff und jede Formel, die in einer Erklärung vorkommt, wird selbst erklärt.** Bei Formeln: jedes Symbol benennen, Einheit nennen, sagen was die Formel aussagt, an einem kleinen Zahlenbeispiel durchrechnen. Ist ein Begriff schon erklärt worden, genügt ein kurzer Verweis.
 - **Kleine Chunks.** Ein Chunk ist eine Idee, die man in 5–10 Minuten verstehen kann. Nach jedem Chunk eine Verständnisfrage, bevor es weitergeht.
 - Ehrlich bleiben: Was das Kursmaterial nicht abdeckt und aus externen Quellen stammt, wird als solches gekennzeichnet.
@@ -64,7 +66,7 @@ Antworten in der Lerninteraktion müssen schnell kommen, damit der Lernfluss nic
 - **Feynman-Methode:** Nach jedem Chunk erklärt der User das Konzept in eigenen Worten, als würde er es einem Laien beibringen. Claude prüft die Erklärung, benennt konkret, was fehlt oder falsch ist, und geht genau an dieser Stelle zurück ins Material. Dann neuer Versuch, so einfach wie möglich.
 - **Abrufübung statt Wiederlesen:** Wiederholungen sind Fragen und Aufgaben, kein erneutes Vorlesen.
 - **Verteilte Wiederholung in wachsenden Abständen:** Gelernte Chunks werden zu Karten in `lernstand.json` und in immer größeren Abständen wieder vorgelegt. Die Parameter und ihre wissenschaftliche Grundlage stehen in `_system/lernwissenschaft.md`.
-- Am Anfang jeder Session fragt Claude, **wie viel Zeit bis zum nächsten neuen Stoff** bleibt (und bestätigt den Klausurtermin, falls bekannt). Danach richtet sich, wie viel neuer Stoff vs. Wiederholung in die Session kommt.
+- **Planung nach Datum, nicht nach festem Plan:** Der User lernt unregelmäßig. Am Anfang jeder Session fragt Claude nur, wie viel Zeit der User heute hat, und ruft `plan.py` auf. Das Skript verteilt allen offenen Stoff aller Kurse (vorhandenen und laut Vorlesungsplan angekündigten) ab dem heutigen Datum gleichmäßig auf die Wochen bis zur Klausur (minus 14 Tage Puffer für die Klausurphase) und schlägt für heute konkrete Wiederholungen und Chunks vor. Wiederholung geht vor neuem Stoff.
 - Kursspezifische Abweichungen stehen in `<Kurs>/_kurs/kurs.md` unter „Methoden“ und gehen den Regeln hier vor.
 
 ## Wiederholungs-Skript
@@ -79,6 +81,23 @@ lernstand.py bewerten <Kurs> id:note id:note …         # mehrere auf einmal (a
 lernstand.py klausur  <Kurs> JJJJ-MM-TT
 lernstand.py status   <Kurs>
 ```
+
+## Planungs-Skript
+
+`python3 .claude/skills/lernsession/scripts/plan.py [--minuten N] [--kurs K …] [--datum JJJJ-MM-TT]` liest pro Kurs die Themenlandkarte in `index.md` (Spalten `Chunks`, `Status`, `ab`), das Ziel aus `kurs.md` (`**Plan-Ziel:**`, sonst erstes Datum bei `**Klausurtermin:**`, sonst Vorlesungsende) und die Karten. Eine Karte `NN-x` zählt als gelernter Chunk von Thema `NN`. Konstanten (Semesterstart, Puffer, Minuten pro Chunk) oben im Skript. Persönliche Werte (Semesterdaten, Lernzeiten, Pendeltage) stehen lokal in `_system/plan-lokal.json` und überschreiben die Standards.
+Damit die Planung stimmt, müssen Material-Updates die Themenlandkarte pflegen: angekündigte Vorlesungen als `geplant` mit `ab`-Datum und geschätzter Chunkzahl (`~N`); kommt das Material, Zeile auf `neu` mit echter Chunkzahl setzen; Nicht-Prüfungsstoff `optional`.
+
+**Lokal, nicht im Repo** (per `.gitignore`): `Kurse/*`, `fachexperte-*`/`kurs-*`, `_system/` außer `lernwissenschaft.md` – also `profil.md` (Vorwissen, Arbeitsweg), `verfuegbarkeit.md`, `plan-lokal.json`, Semesterpläne, Podcast-Cache und venv. Persönliches gehört dorthin, nicht in Skills, Agents oder diese Datei.
+
+## Sparsam arbeiten (Tokens)
+
+Jede Datei im Kontext wird bei jedem weiteren Schritt erneut mitgeschickt. Deshalb gilt für alle Agents und Abläufe:
+- **PDFs als Text, nicht als Bild.** `pdftotext -layout <datei> <scratchpad>/<name>.txt` einmal in eine Datei, dann mit `grep -n` / `sed -n 'A,Bp'` gezielt lesen; nie ganze Foliensätze mit `cat` oder ohne Seitenbereich in den Kontext holen.
+- **Bilder nur, wo der Text fehlt** (Formel als Grafik, Diagramm, Abbildung, die man für die Erklärung braucht): einzelne Seite mit `pdftoppm -f N -l N -png -scale-to 800` rendern. Nie ganze Foliensätze rendern und durchsehen; Seiten mit ausreichendem Text nicht zusätzlich als Bild ansehen. Bild-Token wachsen mit der Pixelzahl.
+- **Bildfolien nur einmal ablesen:** Was von einer gerenderten Seite abgelesen wurde (Text, Formeln in LaTeX, kurze Beschreibung der Abbildung), unter `_kurs/folientext/<materialdatei>.md` als `## S. N` anhängen. Vor jedem Rendern dort nachsehen.
+- **Gezielt lesen:** große Dateien mit `offset`/`limit` bzw. `sed -n`; was schon im Auftrag steht, nicht nochmal nachlesen.
+- **Knapp zurückmelden:** Agents, die Dateien schreiben, geben dem Aufrufer nur Pfade und eine Zusammenfassung von wenigen Zeilen zurück, nicht den Inhalt.
+- **Aufträge an Agents** enthalten Kurs, konkrete Dateien/Seiten und das erwartete Ergebnis – kein „schau dir den Kurs an“.
 
 ## Quellen
 

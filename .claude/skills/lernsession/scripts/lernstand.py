@@ -9,6 +9,8 @@ import sys
 from datetime import date, timedelta
 from pathlib import Path
 
+import echtdatum
+
 ERSTER_ABSTAND = 1
 ZWEITER_ABSTAND = 3
 START_LEICHTIGKEIT = 2.5
@@ -38,7 +40,7 @@ def speichern(kurs, daten):
 
 
 def heute():
-    return date.today()
+    return echtdatum.heute()
 
 
 def deckeln(abstand, klausur):
